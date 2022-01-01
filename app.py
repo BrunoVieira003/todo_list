@@ -3,12 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, ValidationError
-from flask import flash, redirect
+from flask import flash
+from flask_login import UserMixin, LoginManager, login_manager, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
 app.config["SECRET_KEY"] = 'secret'
 db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.query(User).filter_by(id=int(user_id))
 
 # Forms
 class UserForm(FlaskForm):
@@ -18,11 +27,28 @@ class UserForm(FlaskForm):
 
     def validate_username(form, field):
         if db.session.query(User).filter_by(username=form.username.data).first():
-            flash("Nome de usuário já em uso!")
+            flash("Nome de usuário já em uso! Tente novamente")
             raise ValidationError("Nome de usuário já em uso!")
 
+class UserLogin(FlaskForm):
+    username = StringField("Nome de usuário", validators=[DataRequired()])
+    password = PasswordField("Senha", validators=[DataRequired()])
+    submit = SubmitField("Concluir")
+
+    def validate_username(form, field):
+        if db.session.query(User).filter_by(username=form.username.data).first() is None:
+            flash("Usuário não encontrado! Tente novamente")
+            raise ValidationError("Usuário não encontrado")
+    
+    def validate_password(form, field):
+        user = db.session.query(User).filter_by(username=form.username.data).first()
+        if user is not None:
+            if user.password != form.password.data:
+                flash("Senha incorreta! Tente novamente")
+                raise ValidationError("Senha incorreta")
+
 # Models
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -50,6 +76,15 @@ def new_user():
         form.username.data = ""
 
     return render_template("user_form.html", form=form)
+
+@app.route("/login", methods=["GET","POST"])
+def login():
+    form = UserLogin()
+    if form.validate_on_submit():
+        flash("Login realizado com sucesso!")
+        form.username.data = ""
+
+    return render_template("login_form.html", form=form)
 
 if __name__ == "__main__":
     app.run(debug=True)
