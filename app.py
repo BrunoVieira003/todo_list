@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
@@ -88,6 +88,13 @@ def login():
         form.username.data = ""
 
     return render_template("login_form.html", form=form)
+
+@app.route("/logout")
+@login_required
+def logout():
+    flash("Você saiu!")
+    logout_user()
+    return redirect(url_for('login'))
 
 if __name__ == "__main__":
     app.run(debug=True)
