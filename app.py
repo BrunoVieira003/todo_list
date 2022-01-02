@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
@@ -14,10 +14,11 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.login_message = "Você precisa entrar com uma conta antes disso!"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.query(User).filter_by(id=int(user_id))
+    return db.session.query(User).filter_by(id=int(user_id)).first()
 
 # Forms
 class UserForm(FlaskForm):
@@ -81,6 +82,8 @@ def new_user():
 def login():
     form = UserLogin()
     if form.validate_on_submit():
+        user = db.session.query(User).filter(User.username==form.username.data).first()
+        login_user(user)
         flash("Login realizado com sucesso!")
         form.username.data = ""
 
