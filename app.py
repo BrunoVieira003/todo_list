@@ -86,6 +86,7 @@ def login():
         login_user(user)
         flash("Login realizado com sucesso!")
         form.username.data = ""
+        return redirect(url_for('index'))
 
     return render_template("login_form.html", form=form)
 
@@ -94,7 +95,7 @@ def login():
 def logout():
     flash("Você saiu!")
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True)
