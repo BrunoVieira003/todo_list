@@ -55,6 +55,15 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(30), nullable=False)
 
+class Todos(db.Model):
+    __tablename__ = "todos"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(30), nullable=True)
+    status = db.Column(db.String(30), nullable=False, default='pending')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User')
+
 @app.route("/")
 def index():
     return render_template("index.html")
