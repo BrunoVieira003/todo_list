@@ -135,5 +135,15 @@ def new_todo():
 
     return render_template("todo_form.html", form=form)
 
+@app.route("/todo/delete/<todo_id>")
+@login_required
+def delete_todo(todo_id):
+    current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
+    db.session.delete(current_todo)
+    db.session.commit()
+
+    flash("Item excluído com sucesso!")
+    return redirect(url_for('index'))
+
 if __name__ == "__main__":
     app.run(debug=True)
