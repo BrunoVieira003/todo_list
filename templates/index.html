@@ -34,6 +34,16 @@
         <a href="{{ url_for('new_todo') }}" class="btn btn-primary">Novo item</a>
     </div>
     <br>
+    {% for item in todo_list %}
+        <div class="list-group-item">
+            <div class="ms-2 me-auto">
+                <h4 class="fw-bold">{{ item.title|capitalize }}</h4>
+                <p><small>{{ item.description|capitalize }}</small></p>
+                <span class="badge bg-warning rounded-pill">{{ item.status|capitalize }}</span>
+            </div>
+        </div>
+        <br>
+    {% endfor  %}
     {% endif %}
 
 {% endblock %}
