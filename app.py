@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, ValidationError
 from flask import flash
 from flask_login import UserMixin, LoginManager, login_manager, login_user, login_required, logout_user, current_user
@@ -48,6 +48,11 @@ class UserLogin(FlaskForm):
                 flash("Senha incorreta! Tente novamente")
                 raise ValidationError("Senha incorreta")
 
+class TodoForm(FlaskForm):
+    title = StringField("Título", validators=[DataRequired()])
+    description = TextAreaField("Descrição")
+    submit = SubmitField("Concluir")
+
 # Models
 class User(db.Model, UserMixin):
     __tablename__ = "user"
@@ -66,7 +71,11 @@ class Todos(db.Model):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    todo_list = []
+    if current_user.is_authenticated:
+        todo_list = db.session.query(Todos).filter_by(user_id=current_user.id).order_by(Todos.title)
+
+    return render_template("index.html", todo_list=todo_list)
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -105,6 +114,26 @@ def logout():
     flash("Você saiu!")
     logout_user()
     return redirect(url_for('index'))
+
+@app.route("/todo/new", methods=["GET", "POST"])
+@login_required
+def new_todo():
+    form = TodoForm()
+    if form.validate_on_submit():
+        new_todo = Todos()
+        new_todo.title = form.title.data
+        new_todo.description = form.description.data
+        new_todo.status = 'pending'
+        new_todo.user_id = current_user.id
+        db.session.add(new_todo)
+        db.session.commit()
+
+        form.title.data = ''
+        form.description.data = ''
+        flash("Item adicionado com sucesso!")
+        return redirect(url_for('index'))
+
+    return render_template("todo_form.html", form=form)
 
 if __name__ == "__main__":
     app.run(debug=True)
