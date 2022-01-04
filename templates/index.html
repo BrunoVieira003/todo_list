@@ -4,5 +4,25 @@
     <div class="index">
         <h1>Bem vindo ao TDLT<em>(Totalmente Diferente de uma Lista de Tarefas)</em></h1>
     </div>
+    <br>
+    {% if current_user.is_anonymous %}
+        <h3>Antes de começar você precisa de uma conta!</h3>
+        <br>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Ainda não tenho uma conta</h5>
+                <p class="card-text">Crie agora sua conta e aproveite 100% do que o site pode oferecer!</p>
+                <a href="{{ url_for('new_user') }}" class="btn btn-primary">Criar conta</a>
+            </div>
+        </div>
+        <br>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Já tenho uma conta</h5>
+                <p class="card-text">Se você já possui uma conta, entre e comece a usar o nosso site.</p>
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Entrar</a>
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}
