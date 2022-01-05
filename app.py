@@ -73,7 +73,7 @@ class Todos(db.Model):
 def index():
     todo_list = []
     if current_user.is_authenticated:
-        todo_list = db.session.query(Todos).filter_by(user_id=current_user.id).order_by(Todos.title)
+        todo_list = db.session.query(Todos).filter_by(user_id=current_user.id).order_by(Todos.status=='completed')
 
     return render_template("index.html", todo_list=todo_list)
 
