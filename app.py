@@ -135,6 +135,16 @@ def new_todo():
 
     return render_template("todo_form.html", form=form)
 
+@app.route("/todo/complete/<todo_id>")
+@login_required
+def complete_todo(todo_id):
+    current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
+    current_todo.status = 'completed'
+    db.session.commit()
+
+    flash("Tarefa concluída com sucesso!")
+    return redirect(url_for('index'))
+
 @app.route("/todo/delete/<todo_id>")
 @login_required
 def delete_todo(todo_id):

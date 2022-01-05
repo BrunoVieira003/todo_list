@@ -39,9 +39,16 @@
             <div class="ms-2 me-auto">
                 <h4 class="fw-bold">{{ item.title|capitalize }}</h4>
                 <p><small>{{ item.description|capitalize }}</small></p>
-                <span class="badge bg-warning rounded-pill">{{ item.status|capitalize }}</span>
+                {% if item.status == 'pending'%}
+                    <span class="badge bg-warning rounded-pill">{{ item.status|capitalize }}</span>
+                {% elif item.status == 'completed' %}
+                    <span class="badge bg-success rounded-pill">{{ item.status|capitalize }}</span>
+                {% endif %}
             </div>
             <br>
+            {% if item.status == 'pending'%}
+                <a href="{{url_for('complete_todo', todo_id=item.id) }}" class="btn btn-outline-success">Completar</a>
+            {% endif %}
             <a href="{{url_for('delete_todo', todo_id=item.id) }}" class="btn btn-outline-danger">Excluir</a>
         </div>
         <br>
