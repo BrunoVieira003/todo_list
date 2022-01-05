@@ -29,6 +29,31 @@
                 <a href="{{ url_for('login') }}" class="btn btn-primary">Entrar</a>
             </div>
         </div>
+    {% else %}
+    <div class="d-grid gap-2 col-6 mx-auto">
+        <a href="{{ url_for('new_todo') }}" class="btn btn-primary">Novo item</a>
+    </div>
+    <br>
+    {% for item in todo_list %}
+        <div class="list-group-item">
+            <div class="ms-2 me-auto">
+                <h4 class="fw-bold">{{ item.title|capitalize }}</h4>
+                <p><small>{{ item.description|capitalize }}</small></p>
+                {% if item.status == 'pending'%}
+                    <span class="badge bg-warning rounded-pill">{{ item.status|capitalize }}</span>
+                {% elif item.status == 'completed' %}
+                    <span class="badge bg-success rounded-pill">{{ item.status|capitalize }}</span>
+                {% endif %}
+            </div>
+            <br>
+            {% if item.status == 'pending'%}
+                <a href="{{url_for('complete_todo', todo_id=item.id) }}" class="btn btn-outline-success">Completar</a>
+                <a href="{{url_for('update_todo', todo_id=item.id) }}" class="btn btn-outline-warning">Alterar</a>
+            {% endif %}
+            <a href="{{url_for('delete_todo', todo_id=item.id) }}" class="btn btn-outline-danger">Excluir</a>
+        </div>
+        <br>
+    {% endfor  %}
     {% endif %}
 
 {% endblock %}
