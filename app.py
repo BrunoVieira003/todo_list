@@ -50,7 +50,7 @@ class UserLogin(FlaskForm):
 
 class TodoForm(FlaskForm):
     title = StringField("Título", validators=[DataRequired()])
-    description = TextAreaField("Descrição")
+    description = StringField("Descrição")
     submit = SubmitField("Concluir")
 
 # Models
@@ -144,6 +144,21 @@ def complete_todo(todo_id):
 
     flash("Tarefa concluída com sucesso!")
     return redirect(url_for('index'))
+
+@app.route("/todo/update/<todo_id>", methods=["GET", "POST"])
+@login_required
+def update_todo(todo_id):
+    form = TodoForm()
+    current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
+    if form.validate_on_submit():
+        current_todo.title = form.title.data
+        current_todo.description = form.description.data
+        db.session.commit()
+
+        flash("Tarefa alterada com sucesso!")
+        return redirect(url_for('index'))
+
+    return render_template("update_todo.html", form=form, current_todo=current_todo)
 
 @app.route("/todo/delete/<todo_id>")
 @login_required

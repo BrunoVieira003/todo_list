@@ -48,6 +48,7 @@
             <br>
             {% if item.status == 'pending'%}
                 <a href="{{url_for('complete_todo', todo_id=item.id) }}" class="btn btn-outline-success">Completar</a>
+                <a href="{{url_for('update_todo', todo_id=item.id) }}" class="btn btn-outline-warning">Alterar</a>
             {% endif %}
             <a href="{{url_for('delete_todo', todo_id=item.id) }}" class="btn btn-outline-danger">Excluir</a>
         </div>
