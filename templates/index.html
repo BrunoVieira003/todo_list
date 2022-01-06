@@ -31,10 +31,10 @@
         </div>
     {% else %}
     <div class="d-grid gap-2 col-6 mx-auto">
-        <a href="{{ url_for('new_todo') }}" class="btn btn-primary">Novo item</a>
+        <a href="{{ url_for('new_task') }}" class="btn btn-primary">Novo item</a>
     </div>
     <br>
-    {% for item in todo_list %}
+    {% for item in task_list %}
         <div class="list-group-item">
             <div class="ms-2 me-auto">
                 <h4 class="fw-bold">{{ item.title|capitalize }}</h4>
@@ -47,10 +47,10 @@
             </div>
             <br>
             {% if item.status == 'pending'%}
-                <a href="{{url_for('complete_todo', todo_id=item.id) }}" class="btn btn-outline-success">Completar</a>
-                <a href="{{url_for('update_todo', todo_id=item.id) }}" class="btn btn-outline-warning">Alterar</a>
+                <a href="{{url_for('complete_task', task_id=item.id) }}" class="btn btn-outline-success">Completar</a>
+                <a href="{{url_for('update_task', task_id=item.id) }}" class="btn btn-outline-warning">Alterar</a>
             {% endif %}
-            <a href="{{url_for('delete_todo', todo_id=item.id) }}" class="btn btn-outline-danger">Excluir</a>
+            <a href="{{url_for('delete_task', task_id=item.id) }}" class="btn btn-outline-danger">Excluir</a>
         </div>
         <br>
     {% endfor  %}

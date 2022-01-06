@@ -48,7 +48,7 @@ class UserLogin(FlaskForm):
                 flash("Senha incorreta! Tente novamente")
                 raise ValidationError("Senha incorreta")
 
-class TodoForm(FlaskForm):
+class TaskForm(FlaskForm):
     title = StringField("Título", validators=[DataRequired()])
     description = StringField("Descrição")
     submit = SubmitField("Concluir")
@@ -60,8 +60,8 @@ class Users(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(30), nullable=False)
 
-class Todos(db.Model):
-    __tablename__ = "todos"
+class Tasks(db.Model):
+    __tablename__ = "tasks"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(30), nullable=True)
@@ -71,11 +71,11 @@ class Todos(db.Model):
 
 @app.route("/")
 def index():
-    todo_list = []
+    task_list = []
     if current_user.is_authenticated:
-        todo_list = db.session.query(Todos).filter_by(user_id=current_user.id).order_by(Todos.status=='completed')
+        task_list = db.session.query(Tasks).filter_by(user_id=current_user.id).order_by(Tasks.status=='completed')
 
-    return render_template("index.html", todo_list=todo_list)
+    return render_template("index.html", task_list=task_list)
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -115,17 +115,17 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route("/todo/new", methods=["GET", "POST"])
+@app.route("/task/new", methods=["GET", "POST"])
 @login_required
-def new_todo():
-    form = TodoForm()
+def new_task():
+    form = TaskForm()
     if form.validate_on_submit():
-        new_todo = Todos()
-        new_todo.title = form.title.data
-        new_todo.description = form.description.data
-        new_todo.status = 'pending'
-        new_todo.user_id = current_user.id
-        db.session.add(new_todo)
+        new_task = Tasks()
+        new_task.title = form.title.data
+        new_task.description = form.description.data
+        new_task.status = 'pending'
+        new_task.user_id = current_user.id
+        db.session.add(new_task)
         db.session.commit()
 
         form.title.data = ''
@@ -133,14 +133,14 @@ def new_todo():
         flash("Item adicionado com sucesso!")
         return redirect(url_for('index'))
 
-    return render_template("todo_form.html", form=form)
+    return render_template("task_form.html", form=form)
 
-@app.route("/todo/complete/<todo_id>")
+@app.route("/task/complete/<task_id>")
 @login_required
-def complete_todo(todo_id):
-    current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
-    if current_todo.user_id == current_user.id:
-        current_todo.status = 'completed'
+def complete_task(task_id):
+    current_task = db.session.query(Tasks).filter_by(id=task_id).first()
+    if current_task.user_id == current_user.id:
+        current_task.status = 'completed'
         db.session.commit()
         flash("Tarefa concluída com sucesso!")
     else:
@@ -148,37 +148,37 @@ def complete_todo(todo_id):
     
     return redirect(url_for('index'))
 
-@app.route("/todo/update/<todo_id>", methods=["GET", "POST"])
+@app.route("/task/update/<task_id>", methods=["GET", "POST"])
 @login_required
-def update_todo(todo_id):
-    form = TodoForm()
-    current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
-    if current_todo.user_id == current_user.id:
+def update_task(task_id):
+    form = TaskForm()
+    current_task = db.session.query(Tasks).filter_by(id=task_id).first()
+    if current_task.user_id == current_user.id:
         if form.validate_on_submit():
-            current_todo.title = form.title.data
-            current_todo.description = form.description.data
+            current_task.title = form.title.data
+            current_task.description = form.description.data
             db.session.commit()
 
             flash("Tarefa alterada com sucesso!")
             return redirect(url_for('index'))
 
-        return render_template("update_todo.html", form=form, current_todo=current_todo)
+        return render_template("update_task.html", form=form, current_task=current_task)
     else:
         flash("Você não tem permissão para acessar essa página")
         return redirect(url_for('index'))
 
-@app.route("/todo/delete/<todo_id>")
+@app.route("/task/delete/<task_id>")
 @login_required
-def delete_todo(todo_id):
-    current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
-    if current_todo.user_id == current_user.id:
-        db.session.delete(current_todo)
+def delete_task(task_id):
+    current_task = db.session.query(Tasks).filter_by(id=task_id).first()
+    if current_task.user_id == current_user.id:
+        db.session.delete(current_task)
         db.session.commit()
 
         flash("Item excluído com sucesso!")
     else:
         flash("Você não tem permissão para acessar essa página")
-        
+
     return redirect(url_for('index'))
 
 if __name__ == "__main__":
