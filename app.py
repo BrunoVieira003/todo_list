@@ -139,10 +139,13 @@ def new_todo():
 @login_required
 def complete_todo(todo_id):
     current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
-    current_todo.status = 'completed'
-    db.session.commit()
-
-    flash("Tarefa concluída com sucesso!")
+    if current_todo.user_id == current_user.id:
+        current_todo.status = 'completed'
+        db.session.commit()
+        flash("Tarefa concluída com sucesso!")
+    else:
+        flash("Você não tem permissão para acessar essa página")
+    
     return redirect(url_for('index'))
 
 @app.route("/todo/update/<todo_id>", methods=["GET", "POST"])
@@ -150,24 +153,32 @@ def complete_todo(todo_id):
 def update_todo(todo_id):
     form = TodoForm()
     current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
-    if form.validate_on_submit():
-        current_todo.title = form.title.data
-        current_todo.description = form.description.data
-        db.session.commit()
+    if current_todo.user_id == current_user.id:
+        if form.validate_on_submit():
+            current_todo.title = form.title.data
+            current_todo.description = form.description.data
+            db.session.commit()
 
-        flash("Tarefa alterada com sucesso!")
+            flash("Tarefa alterada com sucesso!")
+            return redirect(url_for('index'))
+
+        return render_template("update_todo.html", form=form, current_todo=current_todo)
+    else:
+        flash("Você não tem permissão para acessar essa página")
         return redirect(url_for('index'))
-
-    return render_template("update_todo.html", form=form, current_todo=current_todo)
 
 @app.route("/todo/delete/<todo_id>")
 @login_required
 def delete_todo(todo_id):
     current_todo = db.session.query(Todos).filter_by(id=todo_id).first()
-    db.session.delete(current_todo)
-    db.session.commit()
+    if current_todo.user_id == current_user.id:
+        db.session.delete(current_todo)
+        db.session.commit()
 
-    flash("Item excluído com sucesso!")
+        flash("Item excluído com sucesso!")
+    else:
+        flash("Você não tem permissão para acessar essa página")
+        
     return redirect(url_for('index'))
 
 if __name__ == "__main__":
