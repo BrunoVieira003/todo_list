@@ -18,7 +18,7 @@ login_manager.login_message = "Você precisa entrar com uma conta antes disso!"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.query(User).filter_by(id=int(user_id)).first()
+    return db.session.query(Users).filter_by(id=int(user_id)).first()
 
 # Forms
 class UserForm(FlaskForm):
@@ -27,7 +27,7 @@ class UserForm(FlaskForm):
     submit = SubmitField("Concluir")
 
     def validate_username(form, field):
-        if db.session.query(User).filter_by(username=form.username.data).first():
+        if db.session.query(Users).filter_by(username=form.username.data).first():
             flash("Nome de usuário já em uso! Tente novamente")
             raise ValidationError("Nome de usuário já em uso!")
 
@@ -37,12 +37,12 @@ class UserLogin(FlaskForm):
     submit = SubmitField("Concluir")
 
     def validate_username(form, field):
-        if db.session.query(User).filter_by(username=form.username.data).first() is None:
+        if db.session.query(Users).filter_by(username=form.username.data).first() is None:
             flash("Usuário não encontrado! Tente novamente")
             raise ValidationError("Usuário não encontrado")
     
     def validate_password(form, field):
-        user = db.session.query(User).filter_by(username=form.username.data).first()
+        user = db.session.query(Users).filter_by(username=form.username.data).first()
         if user is not None:
             if user.password != form.password.data:
                 flash("Senha incorreta! Tente novamente")
@@ -54,8 +54,8 @@ class TodoForm(FlaskForm):
     submit = SubmitField("Concluir")
 
 # Models
-class User(db.Model, UserMixin):
-    __tablename__ = "user"
+class Users(db.Model, UserMixin):
+    __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(30), nullable=False)
@@ -66,8 +66,8 @@ class Todos(db.Model):
     title = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(30), nullable=True)
     status = db.Column(db.String(30), nullable=False, default='pending')
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('Users')
 
 @app.route("/")
 def index():
@@ -85,7 +85,7 @@ def page_not_found(e):
 def new_user():
     form = UserForm()
     if form.validate_on_submit():
-        user = User()
+        user = Users()
         user.username = form.username.data
         user.password = form.password.data
         db.session.add(user)
@@ -100,7 +100,7 @@ def new_user():
 def login():
     form = UserLogin()
     if form.validate_on_submit():
-        user = db.session.query(User).filter(User.username==form.username.data).first()
+        user = db.session.query(Users).filter(Users.username==form.username.data).first()
         login_user(user)
         flash("Login realizado com sucesso!")
         form.username.data = ""
