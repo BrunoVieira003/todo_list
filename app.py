@@ -115,6 +115,11 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route("/user/profile")
+@login_required
+def profile():
+    return render_template("profile.html")
+
 @app.route("/task/new", methods=["GET", "POST"])
 @login_required
 def new_task():
