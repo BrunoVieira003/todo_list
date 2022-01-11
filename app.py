@@ -15,6 +15,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = "Você precisa entrar com uma conta antes disso!"
+login_manager.login_message_category = "warning"
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -28,7 +29,7 @@ class UserForm(FlaskForm):
 
     def validate_username(form, field):
         if db.session.query(Users).filter_by(username=form.username.data).first():
-            flash("Nome de usuário já em uso! Tente novamente")
+            flash("Nome de usuário já em uso! Tente novamente", "warning")
             raise ValidationError("Nome de usuário já em uso!")
 
 class UserLogin(FlaskForm):
@@ -38,14 +39,14 @@ class UserLogin(FlaskForm):
 
     def validate_username(form, field):
         if db.session.query(Users).filter_by(username=form.username.data).first() is None:
-            flash("Usuário não encontrado! Tente novamente")
+            flash("Usuário não encontrado! Tente novamente", "warning")
             raise ValidationError("Usuário não encontrado")
     
     def validate_password(form, field):
         user = db.session.query(Users).filter_by(username=form.username.data).first()
         if user is not None:
             if user.password != form.password.data:
-                flash("Senha incorreta! Tente novamente")
+                flash("Senha incorreta! Tente novamente", "warning")
                 raise ValidationError("Senha incorreta")
 
 class TaskForm(FlaskForm):
@@ -91,7 +92,7 @@ def new_user():
         db.session.add(user)
         db.session.commit()
 
-        flash("Usuário criado com sucesso!")
+        flash("Usuário criado com sucesso!", "success")
         form.username.data = ""
 
     return render_template("user_form.html", form=form)
@@ -102,7 +103,7 @@ def login():
     if form.validate_on_submit():
         user = db.session.query(Users).filter(Users.username==form.username.data).first()
         login_user(user)
-        flash("Login realizado com sucesso!")
+        flash("Login realizado com sucesso!", "success")
         form.username.data = ""
         return redirect(url_for('index'))
 
@@ -111,7 +112,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
-    flash("Você saiu!")
+    flash("Você saiu!", "info")
     logout_user()
     return redirect(url_for('index'))
 
@@ -130,7 +131,7 @@ def new_task():
 
         form.title.data = ''
         form.description.data = ''
-        flash("Item adicionado com sucesso!")
+        flash("Item adicionado com sucesso!", "info")
         return redirect(url_for('index'))
 
     return render_template("task_form.html", form=form)
@@ -142,9 +143,9 @@ def complete_task(task_id):
     if current_task.user_id == current_user.id:
         current_task.status = 'completed'
         db.session.commit()
-        flash("Tarefa concluída com sucesso!")
+        flash("Tarefa concluída com sucesso!", "success")
     else:
-        flash("Você não tem permissão para acessar essa página")
+        flash("Você não tem permissão para acessar essa página", "warning")
     
     return redirect(url_for('index'))
 
@@ -159,12 +160,12 @@ def update_task(task_id):
             current_task.description = form.description.data
             db.session.commit()
 
-            flash("Tarefa alterada com sucesso!")
+            flash("Tarefa alterada com sucesso!", "info")
             return redirect(url_for('index'))
 
         return render_template("update_task.html", form=form, current_task=current_task)
     else:
-        flash("Você não tem permissão para acessar essa página")
+        flash("Você não tem permissão para acessar essa página", "warning")
         return redirect(url_for('index'))
 
 @app.route("/task/delete/<task_id>")
@@ -175,9 +176,9 @@ def delete_task(task_id):
         db.session.delete(current_task)
         db.session.commit()
 
-        flash("Item excluído com sucesso!")
+        flash("Item excluído com sucesso!", "info")
     else:
-        flash("Você não tem permissão para acessar essa página")
+        flash("Você não tem permissão para acessar essa página", "warning")
 
     return redirect(url_for('index'))
 
