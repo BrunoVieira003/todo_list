@@ -61,7 +61,7 @@ def delete_user():
         db.session.delete(task)
     db.session.delete(current_user)
     db.session.commit()
-    flash("Sua conta foi excluída com sucesso!")
+    flash("Sua conta foi excluída com sucesso!", "success")
     logout_user()
     return redirect(url_for('index'))
 
