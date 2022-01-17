@@ -83,7 +83,7 @@ def new_task():
         flash("Item adicionado com sucesso!", "info")
         return redirect(url_for('index'))
 
-    return render_template("task_form.html", form=form)
+    return render_template("task/new.html", form=form)
 
 @app.route("/task/complete/<task_id>")
 @login_required
@@ -112,7 +112,7 @@ def update_task(task_id):
             flash("Tarefa alterada com sucesso!", "info")
             return redirect(url_for('index'))
 
-        return render_template("update_task.html", form=form, current_task=current_task)
+        return render_template("task/update.html", form=form, current_task=current_task)
     else:
         flash("Você não tem permissão para acessar essa página", "warning")
         return redirect(url_for('index'))
