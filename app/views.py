@@ -1,7 +1,7 @@
 from flask import flash, render_template, redirect, url_for
 from app import app, current_user, login_required, login_user, logout_user
 from app.models import db, Tasks, Users
-from app.forms import UserLogin, UserForm, TaskForm
+from app.forms import LoginForm, RegisterForm, TaskForm
 
 @app.route("/")
 def index():
@@ -17,7 +17,7 @@ def page_not_found(e):
 
 @app.route("/register", methods=["GET","POST"])
 def register():
-    form = UserForm()
+    form = RegisterForm()
     if form.validate_on_submit():
         user = Users()
         user.username = form.username.data
@@ -28,11 +28,11 @@ def register():
         flash("Usuário criado com sucesso!", "success")
         form.username.data = ""
 
-    return render_template("auth/user_form.html", form=form)
+    return render_template("auth/register.html", form=form)
 
 @app.route("/login", methods=["GET","POST"])
 def login():
-    form = UserLogin()
+    form = LoginForm()
     if form.validate_on_submit():
         user = db.session.query(Users).filter(Users.username==form.username.data).first()
         login_user(user)
@@ -40,7 +40,7 @@ def login():
         form.username.data = ""
         return redirect(url_for('index'))
 
-    return render_template("auth/login_form.html", form=form)
+    return render_template("auth/login.html", form=form)
 
 @app.route("/logout")
 @login_required

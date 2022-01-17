@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, ValidationError
 from app.models import db, Users, Tasks
 
 
-class UserForm(FlaskForm):
+class RegisterForm(FlaskForm):
     username = StringField("Nome de usuário", validators=[DataRequired()])
     password = PasswordField("Senha", validators=[DataRequired()])
     submit = SubmitField("Concluir")
@@ -16,7 +16,7 @@ class UserForm(FlaskForm):
             flash("Nome de usuário já em uso! Tente novamente", "warning")
             raise ValidationError("Nome de usuário já em uso!")
 
-class UserLogin(FlaskForm):
+class LoginForm(FlaskForm):
     username = StringField("Nome de usuário", validators=[DataRequired()])
     password = PasswordField("Senha", validators=[DataRequired()])
     submit = SubmitField("Concluir")
