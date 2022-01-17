@@ -15,8 +15,8 @@ def index():
 def page_not_found(e):
     return render_template("error404.html"), 404
 
-@app.route("/user/new", methods=["GET","POST"])
-def new_user():
+@app.route("/register", methods=["GET","POST"])
+def register():
     form = UserForm()
     if form.validate_on_submit():
         user = Users()
