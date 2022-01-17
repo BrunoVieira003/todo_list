@@ -198,6 +198,3 @@ def delete_task(task_id):
         flash("Você não tem permissão para acessar essa página", "warning")
 
     return redirect(url_for('index'))
-
-if __name__ == "__main__":
-    app.run(debug=True)
