@@ -1,16 +1,15 @@
 import config
 from flask import Flask, render_template, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, TextAreaField
-from wtforms.validators import DataRequired, ValidationError
 from flask import flash
-from flask_login import UserMixin, LoginManager, login_manager, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_manager, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
+
+from app.models import db, Users, Tasks
+from app.forms import UserForm, UserLogin, TaskForm
+
 app.config["SQLALCHEMY_DATABASE_URI"] = config.DATABASE_PATH
 app.config["SECRET_KEY"] = config.SECRET_KEY
-db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -21,55 +20,6 @@ login_manager.login_message_category = "warning"
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.query(Users).filter_by(id=int(user_id)).first()
-
-# Forms
-class UserForm(FlaskForm):
-    username = StringField("Nome de usuário", validators=[DataRequired()])
-    password = PasswordField("Senha", validators=[DataRequired()])
-    submit = SubmitField("Concluir")
-
-    def validate_username(form, field):
-        if db.session.query(Users).filter_by(username=form.username.data).first():
-            flash("Nome de usuário já em uso! Tente novamente", "warning")
-            raise ValidationError("Nome de usuário já em uso!")
-
-class UserLogin(FlaskForm):
-    username = StringField("Nome de usuário", validators=[DataRequired()])
-    password = PasswordField("Senha", validators=[DataRequired()])
-    submit = SubmitField("Concluir")
-
-    def validate_username(form, field):
-        if db.session.query(Users).filter_by(username=form.username.data).first() is None:
-            flash("Usuário não encontrado! Tente novamente", "warning")
-            raise ValidationError("Usuário não encontrado")
-    
-    def validate_password(form, field):
-        user = db.session.query(Users).filter_by(username=form.username.data).first()
-        if user is not None:
-            if user.password != form.password.data:
-                flash("Senha incorreta! Tente novamente", "warning")
-                raise ValidationError("Senha incorreta")
-
-class TaskForm(FlaskForm):
-    title = StringField("Título", validators=[DataRequired()])
-    description = StringField("Descrição")
-    submit = SubmitField("Concluir")
-
-# Models
-class Users(db.Model, UserMixin):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(30), nullable=False)
-
-class Tasks(db.Model):
-    __tablename__ = "tasks"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(30), nullable=True)
-    status = db.Column(db.String(30), nullable=False, default='pending')
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = db.relationship('Users')
 
 @app.route("/")
 def index():
