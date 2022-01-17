@@ -116,6 +116,22 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route("/user/profile")
+@login_required
+def profile():
+    return render_template("profile.html")
+
+@app.route("/user/delete")
+@login_required
+def delete_user():
+    for task in db.session.query(Tasks).filter_by(user_id=current_user.id):
+        db.session.delete(task)
+    db.session.delete(current_user)
+    db.session.commit()
+    flash("Sua conta foi excluída com sucesso!")
+    logout_user()
+    return redirect(url_for('index'))
+
 @app.route("/task/new", methods=["GET", "POST"])
 @login_required
 def new_task():
