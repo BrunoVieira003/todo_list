@@ -1,3 +1,4 @@
+import config
 from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -7,8 +8,8 @@ from flask import flash
 from flask_login import UserMixin, LoginManager, login_manager, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
-app.config["SECRET_KEY"] = 'secret'
+app.config["SQLALCHEMY_DATABASE_URI"] = config.DATABASE_PATH
+app.config["SECRET_KEY"] = config.SECRET_KEY
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
