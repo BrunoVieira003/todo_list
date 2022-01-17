@@ -95,7 +95,7 @@ def new_user():
         flash("Usuário criado com sucesso!", "success")
         form.username.data = ""
 
-    return render_template("user_form.html", form=form)
+    return render_template("auth/user_form.html", form=form)
 
 @app.route("/login", methods=["GET","POST"])
 def login():
@@ -107,7 +107,7 @@ def login():
         form.username.data = ""
         return redirect(url_for('index'))
 
-    return render_template("login_form.html", form=form)
+    return render_template("auth/login_form.html", form=form)
 
 @app.route("/logout")
 @login_required
